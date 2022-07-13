@@ -1,7 +1,9 @@
 {
   "name": "outpredict",
   "version": "0.1.0",
-  "private": true,
+  "engines": {
+    "node": "16.x"
+  },
   "scripts": {
     "postinstall": "npm run build",
     "start": "node server.js"

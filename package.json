@@ -6,7 +6,9 @@
   },
   "scripts": {
     "postinstall": "npm run build",
-    "start": "node server.js"
+    "build": "vue-cli-service build",
+    "start": "node server.js",
+    "serve": "vue-cli-service serve"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.1.1",

@@ -3,11 +3,15 @@ html, body {
 }
 
 body {
-  background-color: white;
+  background-color: #f8f8f8;
 }
 
 body.dark {
   background-color: #202124;
+}
+
+a {
+  cursor: pointer;;
 }
 
 /* #app {
@@ -20,7 +24,7 @@ body.dark {
 }
 
 .search-container {
-  width: 500px;
+  width: 550px;
   margin: 0 auto;
 }
 
@@ -73,7 +77,7 @@ body.dark {
   padding: 8px 14px 10px;
   font-size: 15px;
   line-height: 1;
-  min-width: 120px;
+  min-width: 160px;
   max-width: 300px;
   visibility: hidden;
 }
@@ -124,7 +128,9 @@ body.dark {
 .result-text {
   font-size: 16px;
   padding: 6px 0;
+  white-space: nowrap;
   text-overflow: ellipsis;
+  flex: 1;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -137,6 +143,7 @@ body.dark {
   border-radius: 5px;
   margin: 0;
   text-align: center;
+  max-width: 100%;
 }
 
 .guessed {
@@ -150,4 +157,5 @@ body.dark {
   font-size: 16px;
   font-weight: 600;
   text-align: center;
+  max-width: 100%;
 }

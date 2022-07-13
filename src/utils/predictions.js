@@ -20,7 +20,7 @@ const processPredictionsRequest = (question, res) => {
   const json = JSON.parse(json_match[0])[0];
   return json.map((item) => {
     let prediction = decodeHtmlCharCodes(item[0]);
-    const answerMatch = prediction.match(/<b>([\s\S]*)<\/b>/g);
+    const answerMatch = prediction.match(/<b>([\w\W]*)<\/b>/g);
     let answer = prediction;
     if (answerMatch) {
       answer = answerMatch[0].replace("<b>", "").replace("</b>", "");
@@ -28,11 +28,13 @@ const processPredictionsRequest = (question, res) => {
     } else {
       answer = prediction
         .split(" ")
-        .filter((word) => !question.toLowerCase().includes(word))
+        .filter((word) => !(question.toLowerCase().split(" ").includes(word)))
         .join(" ")
-        .trim();
     }
     answer = answer.trim();
+    if (!answer) {
+      return null
+    }
     const targets = clearTargetWord(answer)
       .split(" ")
       .filter((targetWord) => !nonWordsShort.includes(targetWord));
@@ -42,28 +44,26 @@ const processPredictionsRequest = (question, res) => {
       targets: targets,
       solved: false
     };
-  });
+  }).filter((item) => item != null);
 };
 
-const questions = [
-  "why is the world",
-  "is Elon Musk",
-  "does iPhone have",
-  "how to open",
-  "what to do when",
-  "who is Troye Sivan",
-  "when did"
-];
-
-const pickQuestion = () => {
-  return questions[Math.floor(Math.random() * questions.length)];
-};
+const makeQuestionSet = (sets, setName) => {
+  return sets[setName].questions
+    .map(
+      (question, idx) => {
+        return {
+          id: idx + 1,
+          query: question
+        }
+      }
+    )
+}
 
 const getGuessWordsFromGuess = (guess) => {
   return guess
     .toLowerCase()
     .split(" ")
-    .filter((word) => !nonWords.includes(word));
+    .filter((word) => !nonWordsShort.includes(word));
 };
 
 const checkGuessWithTargets = (guessWords, answer) => {
@@ -78,7 +78,7 @@ const checkGuessWithTargets = (guessWords, answer) => {
 export {
   getPredictionsAPI,
   processPredictionsRequest,
-  pickQuestion,
+  makeQuestionSet,
   getGuessWordsFromGuess,
   checkGuessWithTargets
 };

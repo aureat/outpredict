@@ -5,10 +5,14 @@ module.exports = {
       "./node_modules/flowbite/**/*.js"
     ],
     theme: {
-      fontFamily: {
-        'sans': ['Avenir', 'Helvetica', 'Arial', 'sans-serif']
-      },
       extend: {
+        fontFamily: {
+          'sans': ['Avenir', 'Helvetica', 'Arial', 'sans-serif']
+        },
+        colors: {
+          cornflower: '#6a89ff',
+          darkDivide: '#404044',
+        },
         backgroundColor: {
           transparent: 'transparent',
           black: '#000',

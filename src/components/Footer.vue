@@ -1,26 +1,22 @@
 <script>
+import { ExternalLinkIcon } from '@heroicons/vue/outline'
+
 export default {
-    name: "Footer"
+    name: "Footer",
+    components: {
+        ExternalLinkIcon
+    }
 }
 </script>
 
 <template>
-    <footer class="p-4 bg-gray-100 rounded-lg shadow md:flex md:items-center md:justify-between md:p-6 dark:bg-gray-800">
-        <span class="text-sm text-gray-500 sm:text-center dark:text-gray-400">© 2022 <a href="https://flowbite.com/" class="hover:underline">Flowbite™</a>. All Rights Reserved.
+    <footer class="p-4 mb-10 bg-gray-200 rounded-lg shadow flex items-center justify-center md:p-6 dark:bg-gray-800">
+        <span class="text-sm text-gray-500 dark:text-gray-400 mr-5">
+            © 2022 Altun Hasanli
         </span>
-        <ul class="flex flex-wrap items-center mt-3 text-sm text-gray-500 dark:text-gray-400 sm:mt-0">
-            <li>
-                <a href="#" class="mr-4 hover:underline md:mr-6 ">About</a>
-            </li>
-            <li>
-                <a href="#" class="mr-4 hover:underline md:mr-6">Privacy Policy</a>
-            </li>
-            <li>
-                <a href="#" class="mr-4 hover:underline md:mr-6">Licensing</a>
-            </li>
-            <li>
-                <a href="#" class="hover:underline">Contact</a>
-            </li>
-        </ul>
+        <a href="https://github.com/altunh" target="_blank" class="text-sm text-gray-300 inline-flex items-center hover:underline">
+            <ExternalLinkIcon class="w-4 h-4 text-white mr-1" />
+            Github
+        </a>
     </footer>
 </template>

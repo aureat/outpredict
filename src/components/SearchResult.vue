@@ -18,7 +18,7 @@ export default {
       } else {
         return this.prediction.replace(
           this.predictionAnswer,
-          `<span class="guessed bg-cornflower-300">${this.predictionAnswer}</span>`
+          `<span class="guessed text-white bg-cornflower-300">${this.predictionAnswer}</span>`
         );
       }
     },
@@ -29,7 +29,7 @@ export default {
 <template>
   <div class="result">
     <div class="result-icon"></div>
-    <div class="result-text" v-html="resultString"></div>
+    <div class="result-text text-black dark:text-white" v-html="resultString"></div>
   </div>
 </template>
 

@@ -1,5 +1,7 @@
 <script>
 import { mapState, mapMutations } from "vuex"
+import { StarIcon, XIcon } from "@heroicons/vue/solid";
+import { SparklesIcon } from "@heroicons/vue/outline";
 
 export default {
   name: "Navigation",
@@ -8,10 +10,24 @@ export default {
       themeSwitchLabel: 'Light Mode',
     }
   },
+  components: {
+    StarIcon, SparklesIcon, XIcon
+  },
+  inject: [
+    "gameNewQuestion", 
+    "isUserAuthenticated", 
+    "isGameInProgress",
+    "finishGame",
+    "gameNotify",
+  ],
   computed: {
     ...mapState({
       userName: (state) => state.user.name,
       userScore: (state) => state.user.score,
+      gameRound: (state) => state.activeGame.round,
+      roundScore: (state) => state.activeGame.roundScore,
+      gameScore: (state) => state.activeGame.gameScore,
+      roundCount: (state) => state.user.roundCount,
     })
   },
   methods: {
@@ -26,7 +42,11 @@ export default {
         this.themeSwitchLabel = 'Light Mode'
       }
     },
-    ...mapMutations(["clearQuestionData"])
+    exitGame() {
+      this.gameNotify('sad', 'You ended the game!', 2000)
+      this.finishGame(false)
+      this.$router.push('/')
+    },
   },
   mounted() {
     if (document.body.classList.contains("dark")) {
@@ -40,66 +60,73 @@ export default {
 <template>
   <nav class="px-2 sm:px-4 py-2.5">
     <div class="container flex flex-wrap justify-between items-center mx-auto">
-    <router-link to="/">
-      <a class="flex items-center">
-        <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white">
-          OutPredict
-        </span>
-      </a>
-    </router-link>
-    <div class="flex md:order-2">
-        <button 
-          id="dropdownInformationButton" 
-          data-dropdown-toggle="dropdownInformation" 
-          class="text-black dark:text-white focus:outline-none font-medium text-sm px-2 py-1 mr-3 md:mr-0 text-center inline-flex items-center" 
-          type="button">
-          {{ userName }}
-          <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-        </button>
+      <router-link to="/">
+        <a class="relative flex items-center bg-gradient-to-br from-purple-600 to-blue-500 px-5 py-2 rounded-xl transition hover:scale-[1.03]">
+          <span class="self-center text-xl font-semibold whitespace-nowrap dark:text-white mr-4">
+            OutPredict
+          </span>
+          <span class="font-bold text-white text-6xl absolute bottom-[0.05rem] right-3 skew-y-3 rotate-6">!</span>
+        </a>
+      </router-link>
+      <div class="flex md:order-2">
+          <button 
+            id="dropdownInformationButton" 
+            data-dropdown-toggle="dropdownInformation" 
+            class="text-black dark:text-white focus:outline-none font-medium text-sm px-2 py-1 mr-3 md:mr-0 text-center inline-flex items-center" 
+            type="button">
+            <span v-if="isUserAuthenticated()">@{{ userName }}</span>
+            <span v-else>Guest</span>
+            <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
 
-        <!-- Dropdown menu -->
-        <div id="dropdownInformation" class="z-10 hidden bg-white divide-y divide-gray-100 rounded shadow w-44 dark:bg-gray-700 dark:divide-gray-600">
-            <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
-              <li>
-                <router-link to="/">
-                  <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Dashboard</a>
-                </router-link>
-              </li>
-            </ul>
-            <div class="px-4 py-3">
-              <label for="small-toggle" class="inline-flex relative items-center mb-5 cursor-pointer">
-                <input ref="themeSwitch" type="checkbox" @change="toggleTheme" id="small-toggle" class="sr-only peer">
-                <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cornflower-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-cornflower-300"></div>
-                <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
-                  {{ themeSwitchLabel }}
-                </span>
-              </label>
-            </div>
-            <div class="py-1">
-              <a @click="clearQuestionData" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">
-                Delete My Session
-              </a>
-            </div>
+          <!-- Dropdown menu -->
+          <div id="dropdownInformation" class="z-10 hidden bg-white divide-y divide-gray-100 rounded shadow w-44 dark:bg-gray-700 dark:divide-darkDivide">
+              <template v-if="isUserAuthenticated()">
+                <div class="px-5 pt-5 pb-3">
+                  <span class="text-sm font-medium text-black dark:text-white inline-flex justify-center text-center">
+                    <StarIcon class="w-6 h-6 text-cornflower mr-2 mt-[-0.18rem]" />
+                    <b class="mr-1">All-time:</b> {{ userScore }}
+                  </span>
+                </div>
+                <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="dropdownInformationButton">
+                  <li>
+                    <router-link to="/preferences">
+                      <a href="#" class="block px-4 py-2 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Preferences</a>
+                    </router-link>
+                  </li>
+                </ul>
+              </template>
+              <div class="px-4 py-3">
+                <label for="themeSwitch" class="inline-flex relative items-center cursor-pointer mt-1">
+                  <input ref="themeSwitch" type="checkbox" @change="toggleTheme" id="themeSwitch" class="sr-only peer">
+                  <div class="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-cornflower-300 dark:peer-focus:ring-cornflower-300 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all dark:border-gray-600 peer-checked:bg-cornflower-300"></div>
+                  <span class="ml-3 text-sm font-medium text-gray-900 dark:text-gray-300">
+                    {{ themeSwitchLabel }}
+                  </span>
+                </label>
+              </div>
+          </div>
+      </div>
+
+      <div v-show="isGameInProgress()" class="justify-between items-center ml-[-79px]">
+        <div class="flex items-stretch justify-center">
+          <button @click="exitGame" data-tooltip-target="tooltipEndGame" data-tooltip-placement="bottom" class="inline-flex items-center justify-center text-white bg-gray-800 px-3.5 mr-3 rounded-lg duration-100 transition hover:scale-[1.05]">
+            <XIcon class="w-6 h-6" />
+          </button>
+          <div class="inline-flex items-center justify-center text-white bg-gray-600 px-4 py-3 mr-3 rounded-lg">
+            <span class="font-bold text-md">Round {{ gameRound }}</span>
+            <span class="font-medium text-md">/{{ roundCount }}</span>
+          </div>
+          <div class="inline-flex items-center justify-center text-white px-4 py-3 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg">
+            <SparklesIcon class="w-5 h-5 text-white mr-1.5" />
+            <span class="font-bold text-md">{{ roundScore + gameScore }} Points</span>
+          </div>
         </div>
+        <div id="tooltipEndGame" ref="tooltipEndGame" role="tooltip" class="inline-block absolute invisible z-10 py-2 px-3 text-sm font-medium text-white bg-gray-600 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-500 transition-all duration-200">
+          End Game
+        </div>
+      </div>
 
-        <button data-collapse-toggle="mobile-menu-4" type="button" class="inline-flex items-center p-2 text-sm text-gray-500 rounded-lg md:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600" aria-controls="mobile-menu-4" aria-expanded="false">
-        <span class="sr-only">Open Main Menu</span>
-        <svg class="w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"></path></svg>
-        <svg class="hidden w-6 h-6" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-      </button>
-    </div>
-    <div class="hidden justify-between items-center w-full md:flex md:w-auto md:order-1" id="mobile-menu-4">
-      <ul class="flex flex-col mt-4 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium">
-        <li>
-          <router-link to="/">
-            <a 
-              class="block py-2 pr-4 pl-3 text-gray-700 border-b border-gray-100 hover:bg-gray-50 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 md:dark:hover:text-white dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent dark:border-gray-700">
-              Game
-            </a>
-          </router-link>
-        </li>
-      </ul>
-    </div>
     </div>
   </nav>
 </template>

@@ -1,11 +1,34 @@
 import { createRouter, createWebHistory } from "vue-router";
 
+import Home from "../views/Home.vue";
 import Game from "../views/Game.vue";
-import About from "../views/About.vue";
+import Preferences from "../views/Preferences.vue";
 
 const routes = [
-  { name: "Game", path: "/", component: Game },
-  { name: "About", path: "/about", component: About }
+  { 
+    name: "Home", 
+    path: "/", 
+    component: Home,
+    meta: {
+      transition: 'fade',
+    }
+  },
+  { 
+    name: "Game", 
+    path: "/game", 
+    component: Game,
+    meta: {
+      transition: 'slide-left',
+    }
+  },
+  { 
+    name: "Preferences", 
+    path: "/preferences", 
+    component: Preferences,
+    meta: {
+      transition: 'fade',
+    }
+  }
 ];
 
 export default createRouter({
